@@ -1,0 +1,111 @@
+var Form = document.getElementById("my-form");
+
+Form.addEventListener("submit", onSubmit);
+
+// for getting data from servor
+axios.get("https://crudcrud.com/api/3f98ec6d817e4b11832ee079d8d4cace/JsDataOfBegneer")
+    .then((respon) => {
+        // console.log(respon)
+
+        //our display funtion taking an obj (respon.data it is in form of Arry of obj)
+        for (var i = 0; i < respon.data.length; i++) {
+            DisplayOnScreen(respon.data[i]);
+        }
+    })
+    .catch((err) => {
+        alert("somthing went wrong")
+    })
+
+
+
+
+//function for submitting the data
+function onSubmit(ev) {
+    ev.preventDefault();
+
+    var NameInput = document.getElementById("name");
+    var Enail = document.getElementById("email");
+
+    var obj = {
+        Name: NameInput.value,
+        email: Enail.value
+    }
+    // //store the value in local storage with key value paire
+    // localStorage.setItem(obj.Name + obj.email, JSON.stringify(obj));
+
+    // //call the function for display
+    // DisplayOnScreen(obj);
+
+
+    //Network call
+    axios.post("https://crudcrud.com/api/3f98ec6d817e4b11832ee079d8d4cace/JsDataOfBegneer", obj)
+        .then((repons) => {
+            // console.log(repons)
+            DisplayOnScreen(repons.data)
+
+        })
+        .catch((err) => {
+            alert("somthing went wrong")
+        })
+}
+
+
+
+
+
+//function for display the data
+function DisplayOnScreen(obj) {
+    var UlList = document.getElementById("users");
+    var Li = document.createElement("li");
+
+    Li.textContent = "Name:" + obj.Name + " , " + "EmailId:" + obj.email;
+    //    console.log(obj)
+
+    let userid = obj._id;
+      Li.id = userid
+    //creat the delete btn
+    var Deletbtn = document.createElement("button");
+    Deletbtn.textContent = "delet";
+    //fuction for delete btn
+    //Here onclick fun are woprk that why it alwaye one event (if instead of using onclick we use another function for delete then we put userId inside thst funtion)
+    Deletbtn.onclick = (eve) => {
+        axios.delete(`https://crudcrud.com/api/3f98ec6d817e4b11832ee079d8d4cace/JsDataOfBegneer/${userid}`)
+            .then((respon) => {
+                DisplayOnScreen(userid)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+
+        Li = document.getElementById(userid)
+        UlList.removeChild(Li);
+
+        // localStorage.removeItem(obj.Name + obj.email);
+        // UlList.removeChild(Li);
+    }
+
+
+    //creat the eddit btn
+    var Edditbtn = document.createElement("button");
+    Edditbtn.textContent = "Eddit";
+    //function for eddit 
+    Edditbtn.onclick = () => {
+        localStorage.removeItem(obj.Name + obj.email);
+        UlList.removeChild(Li);
+
+        // for pop up the value on the Textinput after eddit
+        document.getElementById("name").value = obj.Name
+        document.getElementById("email").value = obj.email
+
+    }
+
+    //Append Edditbtn inside Li
+    Li.appendChild(Edditbtn);
+    //Append Delettbtn inside Li
+    Li.appendChild(Deletbtn);
+    //Append Li inside Ullist
+    UlList.appendChild(Li);
+    ///Ullist is parent element and Li is child of this parent
+    //Li is parent for Deletbtn and Eddit btn
+
+}
